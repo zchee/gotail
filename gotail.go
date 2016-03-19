@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/fatih/color"
@@ -41,6 +42,9 @@ func args2config() (tail.Config, int64) {
 		config.Follow = true
 	}
 	config.MaxLineSize = maxlinesize
+	if runtime.GOOS == "darwin" {
+		config.Poll = true
+	}
 	return config, n
 }
 
