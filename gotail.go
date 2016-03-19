@@ -34,7 +34,7 @@ func args2config() (tail.Config, int64) {
 	flag.BoolVar(&config.ReOpen, "F", false, "follow, and track file rename/rotation")
 	flag.Int64Var(&n, "n", 0, "tail from the last Nth location")
 	flag.IntVar(&maxlinesize, "max", 0, "max line size")
-	flag.StringVar(&fcolor, "color", "", "Comma separate coloring output (default color: \"blue\")")
+	flag.StringVar(&fcolor, "color", "", "Comma separate coloring output (default color: [1: red 2: green 3: yellow 4: blue 5: magenta 6: cyan])")
 	flag.StringVar(&filter, "filter", "", "Comma separate filtering output")
 	flag.StringVar(&format, "format", "plain", "Output format [\"plain\", \"json\"]")
 	flag.Parse()
@@ -89,8 +89,26 @@ func tailFile(filename string, config tail.Config, done chan bool) {
 				}
 			}
 
-			if fcolor != "" && strings.Index(l.Text, fcolor) > -1 {
-				fmt.Println(color.BlueString(l.Text))
+			if fcolor != "" {
+				csplit := strings.Split(fcolor, ",")
+				for i, c := range csplit {
+					if strings.Index(l.Text, c) > -1 {
+						switch i {
+						case 0:
+							fmt.Println(color.RedString(l.Text))
+						case 1:
+							fmt.Println(color.GreenString(l.Text))
+						case 2:
+							fmt.Println(color.YellowString(l.Text))
+						case 3:
+							fmt.Println(color.BlueString(l.Text))
+						case 4:
+							fmt.Println(color.MagentaString(l.Text))
+						case 5:
+							fmt.Println(color.CyanString(l.Text))
+						}
+					}
+				}
 			} else {
 				fmt.Println(l.Text)
 			}
