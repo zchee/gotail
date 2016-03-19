@@ -80,15 +80,21 @@ func tailFile(filename string, config tail.Config, done chan bool) {
 	for l := range t.Lines {
 		switch format {
 		case "plain":
-			if filter != "" && strings.Index(l.Text, filter) == -1 {
-				continue
-			} else {
-				if fcolor != "" && strings.Index(l.Text, fcolor) > -1 {
-					fmt.Println(color.BlueString(l.Text))
-				} else {
-					fmt.Println(l.Text)
+			if filter != "" {
+				fsplit := strings.Split(filter, ",")
+				for _, f := range fsplit {
+					if strings.Index(l.Text, f) == -1 {
+						continue
+					}
 				}
 			}
+
+			if fcolor != "" && strings.Index(l.Text, fcolor) > -1 {
+				fmt.Println(color.BlueString(l.Text))
+			} else {
+				fmt.Println(l.Text)
+			}
+
 		case "json":
 			if len(l.Text) > 0 {
 				var data map[string]interface{}
@@ -101,6 +107,9 @@ func tailFile(filename string, config tail.Config, done chan bool) {
 				}
 				os.Stdout.Write(append(jdata, '\n'))
 			}
+
+		default:
+			fmt.Errorf("Unknown format")
 		}
 	}
 	err = t.Wait()
