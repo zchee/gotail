@@ -85,31 +85,32 @@ func tailFile(filename string, config tail.Config, done chan bool) {
 				for _, f := range fsplit {
 					if strings.Index(l.Text, f) == -1 {
 						continue
-					}
-				}
-			}
-
-			if fcolor != "" {
-				csplit := strings.Split(fcolor, ",")
-				for i, c := range csplit {
-					if strings.Index(l.Text, c) > -1 {
-						switch i {
-						case 0:
-							fmt.Println(color.RedString(l.Text))
-						case 1:
-							fmt.Println(color.GreenString(l.Text))
-						case 2:
-							fmt.Println(color.YellowString(l.Text))
-						case 3:
-							fmt.Println(color.BlueString(l.Text))
-						case 4:
-							fmt.Println(color.MagentaString(l.Text))
-						case 5:
-							fmt.Println(color.CyanString(l.Text))
-						}
+					} else {
+						fmt.Println(l.Text)
 					}
 				}
 			} else {
+				if fcolor != "" {
+					csplit := strings.Split(fcolor, ",")
+					for i, c := range csplit {
+						if strings.Index(l.Text, c) > -1 {
+							switch i {
+							case 0:
+								l.Text = color.RedString(l.Text)
+							case 1:
+								l.Text = color.GreenString(l.Text)
+							case 2:
+								l.Text = color.YellowString(l.Text)
+							case 3:
+								l.Text = color.BlueString(l.Text)
+							case 4:
+								l.Text = color.MagentaString(l.Text)
+							case 5:
+								l.Text = color.CyanString(l.Text)
+							}
+						}
+					}
+				}
 				fmt.Println(l.Text)
 			}
 
@@ -117,13 +118,14 @@ func tailFile(filename string, config tail.Config, done chan bool) {
 			if len(l.Text) > 0 {
 				var data map[string]interface{}
 				if err := json.Unmarshal([]byte(l.Text), &data); err != nil {
+					fmt.Printf("Does not json unmarshaling")
 					continue
 				}
 				jdata, err := json.MarshalIndent(data, "", "  ")
 				if err != nil {
 					fmt.Println("%s", err)
 				}
-				os.Stdout.Write(append(jdata, '\n'))
+				fmt.Println(append(jdata, '\n'))
 			}
 
 		default:
